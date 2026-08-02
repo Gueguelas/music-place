@@ -1,0 +1,2189 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Música Interativa | Som, Matemática e Intervalos</title>
+  <style>
+    :root {
+      --red: #b60000;
+      --red-dark: #7d0000;
+      --cream: #f8f4ed;
+      --paper: #fffaf3;
+      --ink: #201715;
+      --muted: #6d5e58;
+      --line: rgba(32, 23, 21, 0.14);
+      --gold: #d69b27;
+      --teal: #1f6b63;
+      --shadow: 0 18px 50px rgba(80, 26, 20, 0.16);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 14px clamp(18px, 4vw, 56px);
+      border-bottom: 1px solid rgba(182, 0, 0, 0.14);
+      background: rgba(248, 244, 237, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 850;
+      letter-spacing: 0;
+      color: var(--red);
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border: 2px solid var(--red);
+      background: var(--paper);
+      color: var(--red);
+      font-weight: 900;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      color: #4d3e39;
+      font-size: 0.94rem;
+      font-weight: 720;
+    }
+
+    .nav-links a {
+      padding: 8px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus-visible {
+      background: rgba(182, 0, 0, 0.09);
+      color: var(--red);
+      outline: none;
+    }
+
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1.03fr) minmax(330px, 0.86fr);
+      gap: clamp(24px, 5vw, 70px);
+      align-items: center;
+      min-height: min(740px, calc(100vh - 64px));
+      padding: clamp(42px, 7vw, 86px) clamp(18px, 5vw, 72px);
+      overflow: hidden;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.055) 0 1px, transparent 1px 27px),
+        linear-gradient(135deg, var(--red-dark), var(--red) 48%, #cf2d14);
+      color: #fffaf3;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 9% -18% auto auto;
+      width: min(62vw, 760px);
+      height: min(62vw, 760px);
+      border: 1px solid rgba(255, 250, 243, 0.22);
+      transform: rotate(-10deg);
+      background:
+        repeating-linear-gradient(90deg, transparent 0 42px, rgba(255, 250, 243, 0.09) 42px 43px),
+        repeating-linear-gradient(0deg, transparent 0 42px, rgba(255, 250, 243, 0.07) 42px 43px);
+      clip-path: polygon(0 12%, 100% 0, 86% 100%, 10% 88%);
+      pointer-events: none;
+    }
+
+    .hero-copy,
+    .sound-lab {
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 16px;
+      color: #ffe7bd;
+      font-size: 0.9rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 42px;
+      height: 2px;
+      background: var(--gold);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 870px;
+      font-size: clamp(3.1rem, 8vw, 7.2rem);
+      font-weight: 940;
+    }
+
+    .lead {
+      max-width: 660px;
+      margin: 22px 0 0;
+      color: rgba(255, 250, 243, 0.88);
+      font-size: clamp(1.08rem, 2.1vw, 1.35rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .button,
+    .ghost-button,
+    .icon-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      border: 0;
+      border-radius: var(--radius);
+      font-weight: 830;
+      transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+
+    .button {
+      gap: 10px;
+      padding: 12px 18px;
+      background: var(--red);
+      color: #fffaf3;
+      box-shadow: 0 12px 28px rgba(182, 0, 0, 0.24);
+    }
+
+    .hero .button {
+      background: #fffaf3;
+      color: var(--red);
+      box-shadow: 0 16px 34px rgba(45, 0, 0, 0.24);
+    }
+
+    .ghost-button {
+      padding: 12px 16px;
+      border: 1px solid rgba(255, 250, 243, 0.42);
+      background: rgba(255, 250, 243, 0.08);
+      color: #fffaf3;
+    }
+
+    .button:hover,
+    .ghost-button:hover,
+    .icon-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .button:focus-visible,
+    .ghost-button:focus-visible,
+    .icon-button:focus-visible,
+    .chip:focus-visible,
+    select:focus-visible,
+    input:focus-visible {
+      outline: 3px solid rgba(214, 155, 39, 0.72);
+      outline-offset: 2px;
+    }
+
+    .quick-facts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 690px;
+      margin-top: 34px;
+    }
+
+    .fact {
+      border-top: 1px solid rgba(255, 250, 243, 0.34);
+      padding-top: 14px;
+    }
+
+    .fact strong {
+      display: block;
+      font-size: 1.35rem;
+      line-height: 1.1;
+    }
+
+    .fact span {
+      display: block;
+      margin-top: 4px;
+      color: rgba(255, 250, 243, 0.75);
+      font-size: 0.93rem;
+    }
+
+    .sound-lab {
+      border: 1px solid rgba(255, 250, 243, 0.36);
+      border-radius: var(--radius);
+      background: rgba(255, 250, 243, 0.94);
+      color: var(--ink);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .lab-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 20px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffaf3, #f3eadc);
+    }
+
+    .lab-head h2 {
+      font-size: 1.35rem;
+    }
+
+    .lab-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 5px 9px;
+      border: 1px solid rgba(31, 107, 99, 0.22);
+      border-radius: 999px;
+      background: rgba(31, 107, 99, 0.09);
+      color: var(--teal);
+      font-size: 0.8rem;
+      font-weight: 820;
+      white-space: nowrap;
+    }
+
+    .canvas-wrap {
+      padding: 16px 18px 0;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #120f0f;
+    }
+
+    #waveCanvas {
+      height: 190px;
+    }
+
+    .controls {
+      display: grid;
+      gap: 16px;
+      padding: 18px;
+    }
+
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .field label,
+    .label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #3a2d29;
+      font-size: 0.88rem;
+      font-weight: 820;
+    }
+
+    .value {
+      color: var(--red);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      margin: 8px 0;
+      border-radius: 999px;
+      appearance: none;
+      background: linear-gradient(90deg, var(--red), var(--gold));
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      width: 22px;
+      height: 22px;
+      border: 3px solid #fffaf3;
+      border-radius: 50%;
+      appearance: none;
+      background: var(--red);
+      box-shadow: 0 3px 10px rgba(32, 23, 21, 0.26);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border: 3px solid #fffaf3;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 3px 10px rgba(32, 23, 21, 0.26);
+    }
+
+    select {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffaf3;
+      color: var(--ink);
+      font-weight: 760;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .button.secondary {
+      border: 1px solid rgba(182, 0, 0, 0.2);
+      background: #fffaf3;
+      color: var(--red);
+      box-shadow: none;
+    }
+
+    .icon-button {
+      width: 44px;
+      padding: 0;
+      border: 1px solid rgba(182, 0, 0, 0.2);
+      background: #fffaf3;
+      color: var(--red);
+      box-shadow: none;
+    }
+
+    .play-symbol,
+    .stop-symbol {
+      position: relative;
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      flex: 0 0 auto;
+    }
+
+    .play-symbol::before {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 1px;
+      border-top: 7px solid transparent;
+      border-bottom: 7px solid transparent;
+      border-left: 11px solid currentColor;
+    }
+
+    .stop-symbol::before {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      background: currentColor;
+    }
+
+    .section {
+      padding: clamp(46px, 8vw, 92px) clamp(18px, 5vw, 72px);
+      scroll-margin-top: 112px;
+    }
+
+    .section-intro {
+      max-width: 820px;
+      margin-bottom: 28px;
+    }
+
+    .section-kicker {
+      margin: 0 0 9px;
+      color: var(--red);
+      font-size: 0.82rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .section h2 {
+      font-size: clamp(2rem, 4vw, 4.1rem);
+      font-weight: 930;
+    }
+
+    .section-intro p {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.7vw, 1.16rem);
+    }
+
+    .concept-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .note-panel {
+      display: grid;
+      align-content: center;
+      min-height: 270px;
+      padding: clamp(24px, 4vw, 44px);
+      border-left: 8px solid var(--red);
+      background: #fffaf3;
+      box-shadow: var(--shadow);
+    }
+
+    .note-panel p {
+      max-width: 760px;
+      margin: 0;
+      font-size: clamp(1.18rem, 2vw, 1.58rem);
+      line-height: 1.35;
+    }
+
+    .definition-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .definition-item {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 250, 243, 0.74);
+    }
+
+    .definition-item strong {
+      display: block;
+      color: var(--red);
+      font-size: 1.02rem;
+    }
+
+    .definition-item span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+    }
+
+    .elements-band {
+      background:
+        linear-gradient(90deg, rgba(182, 0, 0, 0.08), transparent 34%),
+        #fffaf3;
+    }
+
+    .element-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(210px, 1fr));
+      gap: 16px;
+    }
+
+    .element-card {
+      display: flex;
+      min-height: 340px;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-top: 5px solid var(--red);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: 0 10px 30px rgba(32, 23, 21, 0.08);
+    }
+
+    .element-card h3 {
+      color: var(--red);
+      font-size: 1.35rem;
+    }
+
+    .element-card p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.97rem;
+    }
+
+    .mini-controls {
+      display: grid;
+      gap: 12px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      min-height: 38px;
+      padding: 8px 11px;
+      border: 1px solid rgba(182, 0, 0, 0.22);
+      border-radius: 999px;
+      background: rgba(182, 0, 0, 0.06);
+      color: var(--red);
+      font-size: 0.9rem;
+      font-weight: 820;
+    }
+
+    .chip:hover,
+    .chip.active {
+      background: var(--red);
+      color: #fffaf3;
+    }
+
+    .frequency-section {
+      background: #f1e7d9;
+    }
+
+    .frequency-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.72fr) minmax(0, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .frequency-panel,
+    .interval-panel {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .big-number {
+      margin: 12px 0 4px;
+      color: var(--red);
+      font-size: clamp(2.7rem, 7vw, 5.2rem);
+      font-weight: 950;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .helper {
+      margin: 0 0 20px;
+      color: var(--muted);
+    }
+
+    #frequencyCanvas,
+    #intervalCanvas {
+      min-height: 300px;
+      height: 100%;
+    }
+
+    .formula-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .formula-strip div {
+      padding: 12px;
+      border-left: 4px solid var(--gold);
+      background: rgba(214, 155, 39, 0.12);
+      color: #594534;
+      font-size: 0.91rem;
+      font-weight: 720;
+    }
+
+    .interval-section {
+      background:
+        repeating-linear-gradient(0deg, transparent 0 38px, rgba(32, 23, 21, 0.035) 38px 39px),
+        var(--cream);
+    }
+
+    .interval-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.92fr) minmax(0, 1.08fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .interval-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .interval-button {
+      min-height: 50px;
+      padding: 10px 12px;
+      border: 1px solid rgba(182, 0, 0, 0.18);
+      border-radius: var(--radius);
+      background: #fffaf3;
+      color: #3a2d29;
+      font-weight: 830;
+      text-align: left;
+    }
+
+    .interval-button:hover,
+    .interval-button.active {
+      border-color: var(--red);
+      background: rgba(182, 0, 0, 0.08);
+      color: var(--red);
+    }
+
+    .interval-result {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .metric {
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #f8f4ed;
+    }
+
+    .metric small {
+      display: block;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 820;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 3px;
+      color: var(--red);
+      font-size: 1.05rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .math-section {
+      background:
+        linear-gradient(180deg, #fffaf3 0%, #f8f4ed 52%, #f1e7d9 100%);
+    }
+
+    .math-layout {
+      display: grid;
+      grid-template-columns: minmax(300px, 0.88fr) minmax(0, 1.12fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .math-panel,
+    .song-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .math-panel {
+      padding: 22px;
+    }
+
+    #mathCanvas {
+      min-height: 430px;
+      height: 100%;
+    }
+
+    .math-display {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .formula-box {
+      margin: 16px 0;
+      padding: 16px;
+      border-radius: var(--radius);
+      background: #120f0f;
+      color: rgba(255, 250, 243, 0.86);
+      font-size: 0.98rem;
+    }
+
+    .formula-box code {
+      display: block;
+      margin-bottom: 8px;
+      color: #ffe7bd;
+      font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+      font-weight: 900;
+      white-space: normal;
+    }
+
+    .song-card h3 {
+      color: var(--red);
+      font-size: 1.22rem;
+    }
+
+    .song-card p {
+      margin: 8px 0 0;
+      color: var(--muted);
+    }
+
+    .songs-section {
+      background:
+        linear-gradient(90deg, rgba(182, 0, 0, 0.08), transparent 48%),
+        var(--cream);
+    }
+
+    .song-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .song-card {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 20px;
+    }
+
+    .song-card h3 {
+      line-height: 1.16;
+    }
+
+    .song-label {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .note-sequence {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .note-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 9px;
+      border: 1px solid rgba(182, 0, 0, 0.15);
+      border-radius: 999px;
+      background: rgba(182, 0, 0, 0.07);
+      color: var(--red);
+      font-size: 0.86rem;
+      font-weight: 850;
+    }
+
+    .song-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .song-meta div {
+      min-height: 76px;
+      padding: 11px;
+      border-left: 4px solid var(--gold);
+      background: #f8f4ed;
+      color: #4f403b;
+      font-size: 0.92rem;
+      font-weight: 710;
+    }
+
+    .song-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .closing {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: center;
+      background: var(--red);
+      color: #fffaf3;
+    }
+
+    .closing h2 {
+      max-width: 860px;
+      font-size: clamp(2rem, 5vw, 4.8rem);
+    }
+
+    .closing p {
+      max-width: 720px;
+      margin: 14px 0 0;
+      color: rgba(255, 250, 243, 0.82);
+      font-size: 1.08rem;
+    }
+
+    .footer-badge {
+      display: grid;
+      width: min(240px, 34vw);
+      aspect-ratio: 1;
+      place-items: center;
+      border: 1px solid rgba(255, 250, 243, 0.28);
+      background:
+        repeating-linear-gradient(0deg, transparent 0 24px, rgba(255, 250, 243, 0.12) 24px 25px),
+        rgba(255, 250, 243, 0.07);
+      color: #ffe7bd;
+      font-size: clamp(2.2rem, 7vw, 5rem);
+      font-weight: 950;
+    }
+
+    @media (max-width: 1120px) {
+      .hero,
+      .concept-grid,
+      .frequency-layout,
+      .math-layout,
+      .interval-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .element-grid {
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+      }
+
+      .sound-lab {
+        max-width: 760px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 12px 16px;
+      }
+
+      .section {
+        scroll-margin-top: 142px;
+      }
+
+      .nav-links {
+        width: 100%;
+        gap: 4px;
+        justify-content: flex-start;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 2px;
+      }
+
+      .nav-links a {
+        padding: 7px 8px;
+        font-size: 0.88rem;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 40px;
+      }
+
+      .quick-facts,
+      .control-grid,
+      .element-grid,
+      .formula-strip,
+      .math-display,
+      .song-grid,
+      .song-meta,
+      .interval-result,
+      .closing {
+        grid-template-columns: 1fr;
+      }
+
+      .interval-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: clamp(3rem, 15vw, 4.9rem);
+      }
+
+      #waveCanvas {
+        height: 170px;
+      }
+
+      #frequencyCanvas,
+      #mathCanvas,
+      #intervalCanvas {
+        min-height: 260px;
+      }
+
+      .footer-badge {
+        width: 100%;
+        min-height: 120px;
+        aspect-ratio: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#inicio" aria-label="Ir para o início">
+      <span class="brand-mark">M</span>
+      <span>Música Interativa</span>
+    </a>
+    <nav class="nav-links" aria-label="Navegação principal">
+      <a href="#conceito">O que é</a>
+      <a href="#elementos">Elementos</a>
+      <a href="#frequencias">Frequências</a>
+      <a href="#matematica">Matemática</a>
+      <a href="#intervalos">Intervalos</a>
+      <a href="#musicas">Músicas</a>
+    </nav>
+  </header>
+
+  <main id="inicio">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">Som organizado no tempo</p>
+        <h1 id="hero-title">Música é som com intenção.</h1>
+        <p class="lead">
+          Quando controlamos vibrações, pausas, volume e cores sonoras, o som deixa de ser apenas ruído e vira uma forma de expressão.
+        </p>
+        <div class="hero-actions">
+          <button class="button" id="playMelody" type="button"><span class="play-symbol"></span>Tocar exemplo</button>
+          <a class="ghost-button" href="#elementos">Explorar elementos</a>
+        </div>
+        <div class="quick-facts" aria-label="Ideias principais">
+          <div class="fact">
+            <strong>Vibração</strong>
+            <span>todo som começa com algo vibrando</span>
+          </div>
+          <div class="fact">
+            <strong>Tempo</strong>
+            <span>ritmo e silêncio organizam a escuta</span>
+          </div>
+          <div class="fact">
+            <strong>Forma</strong>
+            <span>notas e timbres criam identidade</span>
+          </div>
+        </div>
+      </div>
+
+      <section class="sound-lab" aria-labelledby="lab-title">
+        <div class="lab-head">
+          <div>
+            <h2 id="lab-title">Laboratório sonoro</h2>
+            <p>Controle altura, duração, intensidade e timbre em tempo real.</p>
+          </div>
+          <span class="status" id="audioStatus">Aguardando toque</span>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="waveCanvas" aria-label="Visualizador de onda sonora"></canvas>
+        </div>
+        <div class="controls">
+          <div class="control-grid">
+            <div class="field">
+              <label for="frequency">Altura <span class="value" id="frequencyValue">440 Hz</span></label>
+              <input id="frequency" type="range" min="90" max="1200" value="440" step="1">
+            </div>
+            <div class="field">
+              <label for="duration">Duração <span class="value" id="durationValue">650 ms</span></label>
+              <input id="duration" type="range" min="120" max="2200" value="650" step="10">
+            </div>
+            <div class="field">
+              <label for="volume">Intensidade <span class="value" id="volumeValue">32%</span></label>
+              <input id="volume" type="range" min="1" max="70" value="32" step="1">
+            </div>
+            <div class="field">
+              <label for="waveform">Timbre <span class="value" id="waveformValue">Senoidal</span></label>
+              <select id="waveform">
+                <option value="sine">Senoidal</option>
+                <option value="square">Quadrada</option>
+                <option value="triangle">Triangular</option>
+                <option value="sawtooth">Dente de serra</option>
+              </select>
+            </div>
+          </div>
+          <div class="button-row">
+            <button class="button" id="playTone" type="button"><span class="play-symbol"></span>Tocar som</button>
+            <button class="button secondary" id="playPulse" type="button"><span class="play-symbol"></span>Pulso rítmico</button>
+            <button class="icon-button" id="stopSound" type="button" title="Parar som" aria-label="Parar som"><span class="stop-symbol"></span></button>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="section" id="conceito">
+      <div class="section-intro">
+        <p class="section-kicker">Conceito</p>
+        <h2>O que é música?</h2>
+        <p>Música é a arte de combinar sons e silêncios. Ela usa propriedades físicas do som para criar sensação, movimento e significado.</p>
+      </div>
+      <div class="concept-grid">
+        <div class="note-panel">
+          <p>
+            Um som musical não precisa ser complicado: basta ter uma vibração percebida pelo ouvido e uma escolha humana sobre como ela aparece no tempo.
+          </p>
+        </div>
+        <div class="definition-list" aria-label="Resumo dos conceitos">
+          <div class="definition-item">
+            <strong>Som</strong>
+            <span>É uma vibração que se espalha pelo ar e chega aos nossos ouvidos.</span>
+          </div>
+          <div class="definition-item">
+            <strong>Silêncio</strong>
+            <span>Também faz parte da música, porque cria pausa, expectativa e contraste.</span>
+          </div>
+          <div class="definition-item">
+            <strong>Organização</strong>
+            <span>A música escolhe quando, como e com que força cada som acontece.</span>
+          </div>
+          <div class="definition-item">
+            <strong>Matemática</strong>
+            <span>Frequências, proporções, padrões e frações ajudam a explicar por que certas combinações soam musicais.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section elements-band" id="elementos">
+      <div class="section-intro">
+        <p class="section-kicker">Quatro elementos do som</p>
+        <h2>O mesmo som pode mudar de quatro jeitos.</h2>
+        <p>Altura, duração, intensidade e timbre são características que ajudam a explicar o que ouvimos.</p>
+      </div>
+
+      <div class="element-grid">
+        <article class="element-card">
+          <div>
+            <h3>Altura</h3>
+            <p>Indica se o som é grave ou agudo. Está ligada à frequência: quanto mais Hz, mais agudo.</p>
+          </div>
+          <div class="mini-controls">
+            <div class="field">
+              <label for="miniPitch">Frequência <span class="value" id="miniPitchValue">220 Hz</span></label>
+              <input id="miniPitch" type="range" min="90" max="1000" value="220" step="1">
+            </div>
+            <button class="button secondary" type="button" data-play-mini="pitch"><span class="play-symbol"></span>Ouvir altura</button>
+          </div>
+        </article>
+
+        <article class="element-card">
+          <div>
+            <h3>Duração</h3>
+            <p>Mostra quanto tempo o som permanece. Sons curtos e longos mudam o ritmo da música.</p>
+          </div>
+          <div class="mini-controls">
+            <div class="field">
+              <label for="miniDuration">Tempo <span class="value" id="miniDurationValue">400 ms</span></label>
+              <input id="miniDuration" type="range" min="100" max="1800" value="400" step="10">
+            </div>
+            <button class="button secondary" type="button" data-play-mini="duration"><span class="play-symbol"></span>Ouvir duração</button>
+          </div>
+        </article>
+
+        <article class="element-card">
+          <div>
+            <h3>Intensidade</h3>
+            <p>É o volume do som. Pode ir de suave a forte, criando energia e destaque.</p>
+          </div>
+          <div class="mini-controls">
+            <div class="field">
+              <label for="miniVolume">Volume <span class="value" id="miniVolumeValue">24%</span></label>
+              <input id="miniVolume" type="range" min="1" max="70" value="24" step="1">
+            </div>
+            <button class="button secondary" type="button" data-play-mini="volume"><span class="play-symbol"></span>Ouvir intensidade</button>
+          </div>
+        </article>
+
+        <article class="element-card">
+          <div>
+            <h3>Timbre</h3>
+            <p>É a cor do som. A mesma nota parece diferente em uma flauta, guitarra ou voz.</p>
+          </div>
+          <div class="mini-controls">
+            <div class="chip-row" aria-label="Escolha de timbre">
+              <button class="chip active" type="button" data-wave-demo="sine">Senoidal</button>
+              <button class="chip" type="button" data-wave-demo="square">Quadrada</button>
+              <button class="chip" type="button" data-wave-demo="triangle">Triangular</button>
+              <button class="chip" type="button" data-wave-demo="sawtooth">Serra</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section frequency-section" id="frequencias">
+      <div class="section-intro">
+        <p class="section-kicker">Frequências sonoras</p>
+        <h2>Hz mede quantas vibrações acontecem por segundo.</h2>
+        <p>Uma frequência baixa soa mais grave. Uma frequência alta soa mais aguda. A nota Lá de referência costuma ser 440 Hz.</p>
+      </div>
+
+      <div class="frequency-layout">
+        <div class="frequency-panel">
+          <p class="section-kicker">Demonstração em Hz</p>
+          <div class="big-number"><span id="hzValue">440</span> Hz</div>
+          <p class="helper">Arraste o controle para ver a onda ficar mais espaçada ou mais comprimida.</p>
+          <div class="field">
+            <label for="hzSlider">Frequência <span class="value" id="hzNote">Lá 4</span></label>
+            <input id="hzSlider" type="range" min="60" max="1200" value="440" step="1">
+          </div>
+          <div class="button-row">
+            <button class="button" id="playHz" type="button"><span class="play-symbol"></span>Tocar Hz</button>
+            <button class="chip" type="button" data-hz="110">110</button>
+            <button class="chip" type="button" data-hz="220">220</button>
+            <button class="chip active" type="button" data-hz="440">440</button>
+            <button class="chip" type="button" data-hz="880">880</button>
+          </div>
+          <div class="formula-strip" aria-label="Resumo sobre frequência">
+            <div>60 Hz: vibração lenta, som grave.</div>
+            <div>440 Hz: referência comum para afinação.</div>
+            <div>1200 Hz: vibração rápida, som agudo.</div>
+          </div>
+        </div>
+        <canvas id="frequencyCanvas" aria-label="Visualização da frequência selecionada"></canvas>
+      </div>
+    </section>
+
+    <section class="section math-section" id="matematica">
+      <div class="section-intro">
+        <p class="section-kicker">Música + Matemática</p>
+        <h2>A matemática é a estrutura invisível da música.</h2>
+        <p>Quando uma nota sobe, uma conta acontece. Quando um ritmo encaixa, frações se organizam. Quando um timbre muda, a forma da onda muda.</p>
+      </div>
+
+      <div class="math-layout">
+        <div class="math-panel">
+          <p class="section-kicker">Escala temperada</p>
+          <div class="big-number"><span id="mathFrequency">440</span> Hz</div>
+          <p class="helper">Cada semitom multiplica a frequência por 2^(1/12). Depois de 12 semitons, a frequência dobra e chegamos à oitava.</p>
+
+          <div class="field">
+            <label for="mathSemitone">Distância a partir do Lá 4 <span class="value" id="mathSemitoneValue">0 semitons</span></label>
+            <input id="mathSemitone" type="range" min="-24" max="24" value="0" step="1">
+          </div>
+
+          <div class="math-display">
+            <div class="metric">
+              <small>Nota</small>
+              <strong id="mathNote">Lá 4</strong>
+            </div>
+            <div class="metric">
+              <small>Razão</small>
+              <strong id="mathRatio">1.000x</strong>
+            </div>
+            <div class="metric">
+              <small>Oitavas</small>
+              <strong id="mathOctaves">0.00</strong>
+            </div>
+          </div>
+
+          <div class="formula-box">
+            <code>f = 440 × 2^(n/12)</code>
+            Se n = 12, então f = 880 Hz. Se n = -12, então f = 220 Hz.
+          </div>
+
+          <div class="button-row">
+            <button class="button" id="playMathNote" type="button"><span class="play-symbol"></span>Tocar nota</button>
+            <button class="button secondary" id="playMathOctave" type="button"><span class="play-symbol"></span>Comparar oitava</button>
+          </div>
+        </div>
+        <canvas id="mathCanvas" aria-label="Gráfico matemático da escala musical"></canvas>
+      </div>
+    </section>
+    <section class="section interval-section" id="intervalos">
+      <div class="section-intro">
+        <p class="section-kicker">Intervalos musicais</p>
+        <h2>Intervalo é a distância entre duas notas.</h2>
+        <p>Alguns intervalos parecem estáveis, outros criam tensão. Isso acontece porque as frequências formam proporções diferentes.</p>
+      </div>
+
+      <div class="interval-layout">
+        <div class="interval-panel">
+          <div class="field">
+            <label for="baseFrequency">Nota base <span class="value" id="baseFrequencyValue">262 Hz</span></label>
+            <input id="baseFrequency" type="range" min="180" max="520" value="262" step="1">
+          </div>
+
+          <div class="interval-buttons" aria-label="Tipos de intervalo">
+            <button class="interval-button active" type="button" data-interval="unison">Uníssono</button>
+            <button class="interval-button" type="button" data-interval="octave">Oitava</button>
+            <button class="interval-button" type="button" data-interval="fifth">Quinta justa</button>
+            <button class="interval-button" type="button" data-interval="fourth">Quarta justa</button>
+            <button class="interval-button" type="button" data-interval="majorThird">Terça maior</button>
+            <button class="interval-button" type="button" data-interval="minorThird">Terça menor</button>
+          </div>
+
+          <div class="interval-result">
+            <div class="metric">
+              <small>Proporção</small>
+              <strong id="intervalRatio">1:1</strong>
+            </div>
+            <div class="metric">
+              <small>Nota 1</small>
+              <strong id="intervalBase">262 Hz</strong>
+            </div>
+            <div class="metric">
+              <small>Nota 2</small>
+              <strong id="intervalTop">262 Hz</strong>
+            </div>
+          </div>
+
+          <p class="helper" id="intervalText">Uníssono: as duas notas têm a mesma altura.</p>
+          <div class="button-row">
+            <button class="button" id="playIntervalTogether" type="button"><span class="play-symbol"></span>Tocar junto</button>
+            <button class="button secondary" id="playIntervalApart" type="button"><span class="play-symbol"></span>Tocar separado</button>
+          </div>
+        </div>
+        <canvas id="intervalCanvas" aria-label="Visualização das duas frequências do intervalo"></canvas>
+      </div>
+    </section>
+
+    <section class="section songs-section" id="musicas">
+      <div class="section-intro">
+        <p class="section-kicker">Músicas famosas</p>
+        <h2>Melodias conhecidas são combinações de notas com padrões matemáticos.</h2>
+        <p>Os exemplos abaixo usam trechos instrumentais curtos de obras clássicas ou tradicionais. Observe como repetição, sequência, salto e proporção criam identidade musical.</p>
+      </div>
+
+      <div class="song-grid">
+        <article class="song-card">
+          <div>
+            <span class="song-label">Beethoven</span>
+            <h3>Ode à Alegria</h3>
+            <p>A melodia caminha por graus próximos e repete ideias. Isso facilita memorizar e cantar.</p>
+          </div>
+          <div>
+            <span class="song-label">Notas do trecho</span>
+            <div class="note-sequence" aria-label="Notas da Ode à Alegria">
+              <span class="note-pill">Mi</span>
+              <span class="note-pill">Mi</span>
+              <span class="note-pill">Fá</span>
+              <span class="note-pill">Sol</span>
+              <span class="note-pill">Sol</span>
+              <span class="note-pill">Fá</span>
+              <span class="note-pill">Mi</span>
+              <span class="note-pill">Ré</span>
+            </div>
+          </div>
+          <div class="song-meta">
+            <div>Matemática: repetição + passos de 1 ou 2 semitons.</div>
+            <div>Ideia musical: estabilidade e sensação de frase clara.</div>
+          </div>
+          <div class="song-actions">
+            <button class="button" type="button" data-melody="joy"><span class="play-symbol"></span>Tocar trecho</button>
+          </div>
+        </article>
+
+        <article class="song-card">
+          <div>
+            <span class="song-label">Tradicional</span>
+            <h3>Brilha, Brilha, Estrelinha</h3>
+            <p>O começo alterna repetição e saltos grandes. O salto Dó-Sol é uma quinta justa.</p>
+          </div>
+          <div>
+            <span class="song-label">Notas do trecho</span>
+            <div class="note-sequence" aria-label="Notas de Brilha Brilha Estrelinha">
+              <span class="note-pill">Dó</span>
+              <span class="note-pill">Dó</span>
+              <span class="note-pill">Sol</span>
+              <span class="note-pill">Sol</span>
+              <span class="note-pill">Lá</span>
+              <span class="note-pill">Lá</span>
+              <span class="note-pill">Sol</span>
+            </div>
+          </div>
+          <div class="song-meta">
+            <div>Matemática: quinta justa aproximada por razão 3:2.</div>
+            <div>Ideia musical: contraste entre repetição e salto.</div>
+          </div>
+          <div class="song-actions">
+            <button class="button" type="button" data-melody="twinkle"><span class="play-symbol"></span>Tocar trecho</button>
+          </div>
+        </article>
+
+        <article class="song-card">
+          <div>
+            <span class="song-label">Beethoven</span>
+            <h3>Für Elise</h3>
+            <p>O início usa alternância rápida entre notas vizinhas. A pequena distância cria tensão e movimento.</p>
+          </div>
+          <div>
+            <span class="song-label">Notas do trecho</span>
+            <div class="note-sequence" aria-label="Notas de Für Elise">
+              <span class="note-pill">Mi</span>
+              <span class="note-pill">Ré#</span>
+              <span class="note-pill">Mi</span>
+              <span class="note-pill">Ré#</span>
+              <span class="note-pill">Mi</span>
+              <span class="note-pill">Si</span>
+              <span class="note-pill">Ré</span>
+              <span class="note-pill">Dó</span>
+            </div>
+          </div>
+          <div class="song-meta">
+            <div>Matemática: semitom repetido, o menor passo da escala temperada.</div>
+            <div>Ideia musical: pergunta e resposta em movimento curto.</div>
+          </div>
+          <div class="song-actions">
+            <button class="button" type="button" data-melody="elise"><span class="play-symbol"></span>Tocar trecho</button>
+          </div>
+        </article>
+
+        <article class="song-card">
+          <div>
+            <span class="song-label">Pachelbel</span>
+            <h3>Canon em Ré</h3>
+            <p>O exemplo mostra uma progressão de acordes. A beleza vem da repetição com pequenas variações.</p>
+          </div>
+          <div>
+            <span class="song-label">Acordes do trecho</span>
+            <div class="note-sequence" aria-label="Acordes do Canon em Ré">
+              <span class="note-pill">D</span>
+              <span class="note-pill">A</span>
+              <span class="note-pill">Bm</span>
+              <span class="note-pill">F#m</span>
+              <span class="note-pill">G</span>
+              <span class="note-pill">D</span>
+              <span class="note-pill">G</span>
+              <span class="note-pill">A</span>
+            </div>
+          </div>
+          <div class="song-meta">
+            <div>Matemática: sequência cíclica, como um padrão que se repete.</div>
+            <div>Ideia musical: harmonia previsível cria sensação de continuidade.</div>
+          </div>
+          <div class="song-actions">
+            <button class="button" type="button" data-melody="canon"><span class="play-symbol"></span>Tocar progressão</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section closing">
+      <div>
+        <p class="section-kicker">Para apresentar</p>
+        <h2>Ouvir, ver e calcular: três jeitos de entender música.</h2>
+        <p>
+          Use os controles para mostrar que música não é só teoria: ela também é física, matemática, percepção e criatividade acontecendo ao mesmo tempo.
+        </p>
+      </div>
+      <div class="footer-badge" aria-hidden="true">Hz</div>
+    </section>
+  </main>
+
+  <script>
+    const waveNames = {
+      sine: "Senoidal",
+      square: "Quadrada",
+      triangle: "Triangular",
+      sawtooth: "Dente de serra"
+    };
+
+    const intervals = {
+      unison: {
+        name: "Uníssono",
+        ratioText: "1:1",
+        ratio: 1,
+        text: "Uníssono: as duas notas têm a mesma altura."
+      },
+      octave: {
+        name: "Oitava",
+        ratioText: "2:1",
+        ratio: 2,
+        text: "Oitava: a segunda nota vibra duas vezes mais rápido e parece uma versão mais aguda da primeira."
+      },
+      fifth: {
+        name: "Quinta justa",
+        ratioText: "3:2",
+        ratio: 3 / 2,
+        text: "Quinta justa: soa aberta e estável, muito usada em acordes e melodias."
+      },
+      fourth: {
+        name: "Quarta justa",
+        ratioText: "4:3",
+        ratio: 4 / 3,
+        text: "Quarta justa: tem sensação firme e aparece bastante em hinos, fanfarras e canções."
+      },
+      majorThird: {
+        name: "Terça maior",
+        ratioText: "5:4",
+        ratio: 5 / 4,
+        text: "Terça maior: costuma soar clara, brilhante e alegre dentro de muitos acordes."
+      },
+      minorThird: {
+        name: "Terça menor",
+        ratioText: "6:5",
+        ratio: 6 / 5,
+        text: "Terça menor: costuma soar mais escura ou melancólica em muitas músicas."
+      }
+    };
+
+    const notes = ["Dó", "Dó#", "Ré", "Ré#", "Mi", "Fá", "Fá#", "Sol", "Sol#", "Lá", "Lá#", "Si"];
+
+    const melodies = {
+      joy: {
+        bpm: 132,
+        waveform: "triangle",
+        volume: 26,
+        steps: [
+          { midi: 64, beats: 1 }, { midi: 64, beats: 1 }, { midi: 65, beats: 1 }, { midi: 67, beats: 1 },
+          { midi: 67, beats: 1 }, { midi: 65, beats: 1 }, { midi: 64, beats: 1 }, { midi: 62, beats: 1 },
+          { midi: 60, beats: 1 }, { midi: 60, beats: 1 }, { midi: 62, beats: 1 }, { midi: 64, beats: 1 },
+          { midi: 64, beats: 1.3 }, { midi: 62, beats: 0.7 }, { midi: 62, beats: 1.8 }
+        ]
+      },
+      twinkle: {
+        bpm: 104,
+        waveform: "sine",
+        volume: 28,
+        steps: [
+          { midi: 60, beats: 1 }, { midi: 60, beats: 1 }, { midi: 67, beats: 1 }, { midi: 67, beats: 1 },
+          { midi: 69, beats: 1 }, { midi: 69, beats: 1 }, { midi: 67, beats: 2 },
+          { midi: 65, beats: 1 }, { midi: 65, beats: 1 }, { midi: 64, beats: 1 }, { midi: 64, beats: 1 },
+          { midi: 62, beats: 1 }, { midi: 62, beats: 1 }, { midi: 60, beats: 2 }
+        ]
+      },
+      elise: {
+        bpm: 150,
+        waveform: "sine",
+        volume: 25,
+        steps: [
+          { midi: 76, beats: 0.55 }, { midi: 75, beats: 0.55 }, { midi: 76, beats: 0.55 }, { midi: 75, beats: 0.55 },
+          { midi: 76, beats: 0.55 }, { midi: 71, beats: 0.55 }, { midi: 74, beats: 0.55 }, { midi: 72, beats: 0.55 },
+          { midi: 69, beats: 1.5 }
+        ]
+      },
+      canon: {
+        bpm: 86,
+        waveform: "triangle",
+        volume: 18,
+        arpeggio: true,
+        steps: [
+          { chord: [62, 66, 69], beats: 1 },
+          { chord: [57, 61, 64], beats: 1 },
+          { chord: [59, 62, 66], beats: 1 },
+          { chord: [54, 57, 61], beats: 1 },
+          { chord: [55, 59, 62], beats: 1 },
+          { chord: [50, 54, 57], beats: 1 },
+          { chord: [55, 59, 62], beats: 1 },
+          { chord: [57, 61, 64], beats: 1.5 }
+        ]
+      }
+    };
+
+    const state = {
+      frequency: 440,
+      duration: 650,
+      volume: 32,
+      waveform: "sine",
+      miniPitch: 220,
+      miniDuration: 400,
+      miniVolume: 24,
+      hz: 440,
+      mathSemitone: 0,
+      baseFrequency: 262,
+      interval: "unison"
+    };
+
+    const els = {
+      audioStatus: document.querySelector("#audioStatus"),
+      frequency: document.querySelector("#frequency"),
+      frequencyValue: document.querySelector("#frequencyValue"),
+      duration: document.querySelector("#duration"),
+      durationValue: document.querySelector("#durationValue"),
+      volume: document.querySelector("#volume"),
+      volumeValue: document.querySelector("#volumeValue"),
+      waveform: document.querySelector("#waveform"),
+      waveformValue: document.querySelector("#waveformValue"),
+      playTone: document.querySelector("#playTone"),
+      playPulse: document.querySelector("#playPulse"),
+      playMelody: document.querySelector("#playMelody"),
+      stopSound: document.querySelector("#stopSound"),
+      miniPitch: document.querySelector("#miniPitch"),
+      miniPitchValue: document.querySelector("#miniPitchValue"),
+      miniDuration: document.querySelector("#miniDuration"),
+      miniDurationValue: document.querySelector("#miniDurationValue"),
+      miniVolume: document.querySelector("#miniVolume"),
+      miniVolumeValue: document.querySelector("#miniVolumeValue"),
+      hzSlider: document.querySelector("#hzSlider"),
+      hzValue: document.querySelector("#hzValue"),
+      hzNote: document.querySelector("#hzNote"),
+      playHz: document.querySelector("#playHz"),
+      mathSemitone: document.querySelector("#mathSemitone"),
+      mathSemitoneValue: document.querySelector("#mathSemitoneValue"),
+      mathFrequency: document.querySelector("#mathFrequency"),
+      mathNote: document.querySelector("#mathNote"),
+      mathRatio: document.querySelector("#mathRatio"),
+      mathOctaves: document.querySelector("#mathOctaves"),
+      playMathNote: document.querySelector("#playMathNote"),
+      playMathOctave: document.querySelector("#playMathOctave"),
+      baseFrequency: document.querySelector("#baseFrequency"),
+      baseFrequencyValue: document.querySelector("#baseFrequencyValue"),
+      intervalRatio: document.querySelector("#intervalRatio"),
+      intervalBase: document.querySelector("#intervalBase"),
+      intervalTop: document.querySelector("#intervalTop"),
+      intervalText: document.querySelector("#intervalText"),
+      playIntervalTogether: document.querySelector("#playIntervalTogether"),
+      playIntervalApart: document.querySelector("#playIntervalApart"),
+      waveCanvas: document.querySelector("#waveCanvas"),
+      frequencyCanvas: document.querySelector("#frequencyCanvas"),
+      mathCanvas: document.querySelector("#mathCanvas"),
+      intervalCanvas: document.querySelector("#intervalCanvas")
+    };
+
+    let audioContext;
+    let analyser;
+    let masterGain;
+    let dataArray;
+    let visualPhase = 0;
+    const activeOscillators = new Set();
+
+    function formatHz(value) {
+      return `${Math.round(value)} Hz`;
+    }
+
+    function volumeToGain(value) {
+      return Math.max(0.0001, Number(value) / 100);
+    }
+
+    function frequencyFromMidi(midi) {
+      return 440 * Math.pow(2, (midi - 69) / 12);
+    }
+
+    function noteNameFromMidi(midi) {
+      const name = notes[(Math.round(midi) + 1200) % 12];
+      const octave = Math.floor(Math.round(midi) / 12) - 1;
+      return `${name} ${octave}`;
+    }
+
+    function noteNameFromFrequency(frequency) {
+      const midi = Math.round(69 + 12 * Math.log2(frequency / 440));
+      return noteNameFromMidi(midi);
+    }
+
+    async function ensureAudio() {
+      const AudioCtor = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtor) {
+        els.audioStatus.textContent = "Áudio indisponível";
+        return false;
+      }
+
+      if (!audioContext) {
+        audioContext = new AudioCtor();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+        dataArray = new Uint8Array(analyser.fftSize);
+
+        const compressor = audioContext.createDynamicsCompressor();
+        masterGain = audioContext.createGain();
+        masterGain.gain.value = 0.88;
+
+        analyser.connect(compressor);
+        compressor.connect(masterGain);
+        masterGain.connect(audioContext.destination);
+      }
+
+      if (audioContext.state === "suspended") {
+        await audioContext.resume();
+      }
+
+      els.audioStatus.textContent = "Áudio ativo";
+      return true;
+    }
+
+    function scheduleTone({ frequency, duration, volume, waveform, delay = 0 }) {
+      const start = audioContext.currentTime + delay;
+      const safeDuration = Math.max(0.08, Number(duration));
+      const gainValue = volumeToGain(volume);
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+
+      oscillator.type = waveform;
+      oscillator.frequency.setValueAtTime(Number(frequency), start);
+
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(gainValue, start + 0.018);
+      gain.gain.setValueAtTime(gainValue, start + Math.max(0.025, safeDuration - 0.055));
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + safeDuration);
+
+      oscillator.connect(gain);
+      gain.connect(analyser);
+      oscillator.start(start);
+      oscillator.stop(start + safeDuration + 0.035);
+
+      activeOscillators.add(oscillator);
+      oscillator.addEventListener("ended", () => {
+        activeOscillators.delete(oscillator);
+        gain.disconnect();
+      });
+    }
+
+    async function playTone(options = {}) {
+      const ready = await ensureAudio();
+      if (!ready) return;
+
+      scheduleTone({
+        frequency: options.frequency ?? state.frequency,
+        duration: options.duration ?? state.duration / 1000,
+        volume: options.volume ?? state.volume,
+        waveform: options.waveform ?? state.waveform,
+        delay: options.delay ?? 0
+      });
+    }
+
+    async function playSequence(sequence) {
+      const ready = await ensureAudio();
+      if (!ready || !sequence) return;
+
+      stopAllSounds();
+      const beatDuration = 60 / sequence.bpm;
+      let delay = 0;
+
+      sequence.steps.forEach((step) => {
+        const beats = step.beats ?? 1;
+        const duration = Math.max(0.08, beatDuration * beats * 0.9);
+
+        if (step.chord) {
+          step.chord.forEach((midi, index) => {
+            scheduleTone({
+              frequency: frequencyFromMidi(midi),
+              duration: sequence.arpeggio ? duration + 0.25 : duration,
+              volume: sequence.volume,
+              waveform: sequence.waveform,
+              delay: delay + (sequence.arpeggio ? index * 0.07 : 0)
+            });
+          });
+        } else if (typeof step.midi === "number") {
+          scheduleTone({
+            frequency: frequencyFromMidi(step.midi),
+            duration,
+            volume: sequence.volume,
+            waveform: sequence.waveform,
+            delay
+          });
+        }
+
+        delay += beatDuration * beats;
+      });
+    }
+
+    function stopAllSounds() {
+      activeOscillators.forEach((oscillator) => {
+        try {
+          oscillator.stop();
+        } catch (error) {
+          // Oscillators can only be stopped once.
+        }
+      });
+      activeOscillators.clear();
+      els.audioStatus.textContent = audioContext ? "Áudio ativo" : "Aguardando toque";
+    }
+
+    function updateMainControls() {
+      state.frequency = Number(els.frequency.value);
+      state.duration = Number(els.duration.value);
+      state.volume = Number(els.volume.value);
+      state.waveform = els.waveform.value;
+      els.frequencyValue.textContent = formatHz(state.frequency);
+      els.durationValue.textContent = `${state.duration} ms`;
+      els.volumeValue.textContent = `${state.volume}%`;
+      els.waveformValue.textContent = waveNames[state.waveform];
+    }
+
+    function updateMiniControls() {
+      state.miniPitch = Number(els.miniPitch.value);
+      state.miniDuration = Number(els.miniDuration.value);
+      state.miniVolume = Number(els.miniVolume.value);
+      els.miniPitchValue.textContent = formatHz(state.miniPitch);
+      els.miniDurationValue.textContent = `${state.miniDuration} ms`;
+      els.miniVolumeValue.textContent = `${state.miniVolume}%`;
+    }
+
+    function updateFrequencyControls() {
+      state.hz = Number(els.hzSlider.value);
+      els.hzValue.textContent = Math.round(state.hz);
+      els.hzNote.textContent = noteNameFromFrequency(state.hz);
+
+      document.querySelectorAll("[data-hz]").forEach((button) => {
+        button.classList.toggle("active", Number(button.dataset.hz) === state.hz);
+      });
+    }
+
+    function updateMathControls() {
+      state.mathSemitone = Number(els.mathSemitone.value);
+      const ratio = Math.pow(2, state.mathSemitone / 12);
+      const frequency = 440 * ratio;
+      const semitoneText = state.mathSemitone === 1 || state.mathSemitone === -1 ? "semitom" : "semitons";
+
+      els.mathSemitoneValue.textContent = `${state.mathSemitone} ${semitoneText}`;
+      els.mathFrequency.textContent = Math.round(frequency);
+      els.mathNote.textContent = noteNameFromFrequency(frequency);
+      els.mathRatio.textContent = `${ratio.toFixed(3)}x`;
+      els.mathOctaves.textContent = (state.mathSemitone / 12).toFixed(2);
+    }
+
+    function updateIntervalControls() {
+      state.baseFrequency = Number(els.baseFrequency.value);
+      const interval = intervals[state.interval];
+      const topFrequency = state.baseFrequency * interval.ratio;
+
+      els.baseFrequencyValue.textContent = formatHz(state.baseFrequency);
+      els.intervalRatio.textContent = interval.ratioText;
+      els.intervalBase.textContent = formatHz(state.baseFrequency);
+      els.intervalTop.textContent = formatHz(topFrequency);
+      els.intervalText.textContent = interval.text;
+    }
+
+    function resizeCanvas(canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const width = Math.max(1, Math.floor(rect.width * dpr));
+      const height = Math.max(1, Math.floor(rect.height * dpr));
+
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { ctx, width: rect.width, height: rect.height };
+    }
+
+    function waveValue(type, t) {
+      if (type === "square") return Math.sin(t) >= 0 ? 1 : -1;
+      if (type === "triangle") return (2 / Math.PI) * Math.asin(Math.sin(t));
+      if (type === "sawtooth") return 2 * (t / (Math.PI * 2) - Math.floor(0.5 + t / (Math.PI * 2)));
+      return Math.sin(t);
+    }
+
+    function drawGrid(ctx, width, height, color = "rgba(255,250,243,0.12)") {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let x = 0; x <= width; x += 48) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+      }
+      for (let y = 0; y <= height; y += 38) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+      }
+      ctx.stroke();
+    }
+
+    function drawWaveCanvas() {
+      const { ctx, width, height } = resizeCanvas(els.waveCanvas);
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#120f0f";
+      ctx.fillRect(0, 0, width, height);
+      drawGrid(ctx, width, height);
+
+      ctx.strokeStyle = "#d69b27";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+
+      const hasAudio = analyser && activeOscillators.size > 0;
+      if (hasAudio) {
+        analyser.getByteTimeDomainData(dataArray);
+        for (let i = 0; i < dataArray.length; i += 1) {
+          const x = (i / (dataArray.length - 1)) * width;
+          const y = (dataArray[i] / 255) * height;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+      } else {
+        const cycles = Math.max(1.2, state.frequency / 150);
+        for (let x = 0; x <= width; x += 2) {
+          const t = (x / width) * Math.PI * 2 * cycles + visualPhase;
+          const y = height / 2 + waveValue(state.waveform, t) * height * 0.28;
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+      }
+
+      ctx.stroke();
+      ctx.fillStyle = "rgba(255,250,243,0.86)";
+      ctx.font = "700 13px system-ui, sans-serif";
+      ctx.fillText(`${formatHz(state.frequency)} | ${waveNames[state.waveform]} | ${state.volume}%`, 14, 24);
+    }
+
+    function drawFrequencyCanvas() {
+      const { ctx, width, height } = resizeCanvas(els.frequencyCanvas);
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#120f0f";
+      ctx.fillRect(0, 0, width, height);
+      drawGrid(ctx, width, height, "rgba(248,244,237,0.1)");
+
+      const cycles = Math.max(0.7, state.hz / 90);
+      const amplitude = height * 0.25;
+      const centerY = height * 0.52;
+
+      ctx.strokeStyle = "rgba(248,244,237,0.55)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, centerY);
+      ctx.lineTo(width, centerY);
+      ctx.stroke();
+
+      ctx.strokeStyle = "#b60000";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      for (let x = 0; x <= width; x += 2) {
+        const y = centerY + Math.sin((x / width) * Math.PI * 2 * cycles + visualPhase) * amplitude;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = "#fffaf3";
+      ctx.font = "900 28px system-ui, sans-serif";
+      ctx.fillText(`${Math.round(state.hz)} Hz`, 20, 44);
+      ctx.font = "700 14px system-ui, sans-serif";
+      ctx.fillStyle = "rgba(255,250,243,0.78)";
+      ctx.fillText(`Nota aproximada: ${noteNameFromFrequency(state.hz)}`, 22, 70);
+    }
+
+    function drawMathCanvas() {
+      const { ctx, width, height } = resizeCanvas(els.mathCanvas);
+      const minSemi = -24;
+      const maxSemi = 24;
+      const minFrequency = 110;
+      const maxFrequency = 1760;
+      const plotLeft = 36;
+      const plotRight = width - 24;
+      const plotTop = 78;
+      const plotBottom = height - 44;
+      const selectedRatio = Math.pow(2, state.mathSemitone / 12);
+      const selectedFrequency = 440 * selectedRatio;
+
+      function xForSemitone(semitone) {
+        return plotLeft + ((semitone - minSemi) / (maxSemi - minSemi)) * (plotRight - plotLeft);
+      }
+
+      function yForFrequency(frequency) {
+        const position = Math.log2(frequency / minFrequency) / Math.log2(maxFrequency / minFrequency);
+        return plotBottom - position * (plotBottom - plotTop);
+      }
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#120f0f";
+      ctx.fillRect(0, 0, width, height);
+      drawGrid(ctx, width, height, "rgba(248,244,237,0.08)");
+
+      ctx.strokeStyle = "rgba(255,250,243,0.28)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      [220, 440, 880].forEach((frequency) => {
+        const y = yForFrequency(frequency);
+        ctx.moveTo(plotLeft, y);
+        ctx.lineTo(plotRight, y);
+      });
+      [-24, -12, 0, 12, 24].forEach((semitone) => {
+        const x = xForSemitone(semitone);
+        ctx.moveTo(x, plotTop);
+        ctx.lineTo(x, plotBottom);
+      });
+      ctx.stroke();
+
+      ctx.strokeStyle = "#d69b27";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      for (let semitone = minSemi; semitone <= maxSemi; semitone += 0.25) {
+        const frequency = 440 * Math.pow(2, semitone / 12);
+        const x = xForSemitone(semitone);
+        const y = yForFrequency(frequency);
+        if (semitone === minSemi) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      const selectedX = xForSemitone(state.mathSemitone);
+      const selectedY = yForFrequency(selectedFrequency);
+
+      ctx.strokeStyle = "rgba(182,0,0,0.7)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(selectedX, plotTop);
+      ctx.lineTo(selectedX, plotBottom);
+      ctx.stroke();
+
+      ctx.fillStyle = "#b60000";
+      ctx.beginPath();
+      ctx.arc(selectedX, selectedY, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#fffaf3";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.fillStyle = "#fffaf3";
+      ctx.font = "900 24px system-ui, sans-serif";
+      ctx.fillText("f = 440 × 2^(n/12)", 18, 36);
+      ctx.font = "800 14px system-ui, sans-serif";
+      ctx.fillStyle = "rgba(255,250,243,0.78)";
+      ctx.fillText(`${noteNameFromFrequency(selectedFrequency)} | n = ${state.mathSemitone} | ${Math.round(selectedFrequency)} Hz`, 20, 62);
+
+      ctx.font = "700 12px system-ui, sans-serif";
+      ctx.fillStyle = "rgba(255,250,243,0.68)";
+      ctx.fillText("220", plotLeft + 4, yForFrequency(220) - 6);
+      ctx.fillText("440", plotLeft + 4, yForFrequency(440) - 6);
+      ctx.fillText("880", plotLeft + 4, yForFrequency(880) - 6);
+      ctx.fillText("-24", xForSemitone(-24) - 10, plotBottom + 24);
+      ctx.fillText("0", xForSemitone(0) - 4, plotBottom + 24);
+      ctx.fillText("+24", xForSemitone(24) - 18, plotBottom + 24);
+    }
+
+    function drawIntervalCanvas() {
+      const { ctx, width, height } = resizeCanvas(els.intervalCanvas);
+      const interval = intervals[state.interval];
+      const ratio = interval.ratio;
+      const baseCycles = 3;
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#120f0f";
+      ctx.fillRect(0, 0, width, height);
+      drawGrid(ctx, width, height, "rgba(248,244,237,0.1)");
+
+      function drawLine(yBase, cycles, color, label) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        for (let x = 0; x <= width; x += 2) {
+          const y = yBase + Math.sin((x / width) * Math.PI * 2 * cycles + visualPhase) * height * 0.12;
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        ctx.fillStyle = color;
+        ctx.font = "800 13px system-ui, sans-serif";
+        ctx.fillText(label, 18, yBase - height * 0.16);
+      }
+
+      drawLine(height * 0.38, baseCycles, "#d69b27", `Nota 1: ${formatHz(state.baseFrequency)}`);
+      drawLine(height * 0.68, baseCycles * ratio, "#36a092", `Nota 2: ${formatHz(state.baseFrequency * ratio)}`);
+
+      ctx.fillStyle = "#fffaf3";
+      ctx.font = "900 26px system-ui, sans-serif";
+      ctx.fillText(interval.name, 18, 42);
+      ctx.font = "800 14px system-ui, sans-serif";
+      ctx.fillStyle = "rgba(255,250,243,0.78)";
+      ctx.fillText(`Proporção ${interval.ratioText}`, 20, 68);
+    }
+
+    function animateCanvases() {
+      visualPhase += 0.035;
+      drawWaveCanvas();
+      drawFrequencyCanvas();
+      drawMathCanvas();
+      drawIntervalCanvas();
+      requestAnimationFrame(animateCanvases);
+    }
+
+    els.frequency.addEventListener("input", updateMainControls);
+    els.duration.addEventListener("input", updateMainControls);
+    els.volume.addEventListener("input", updateMainControls);
+    els.waveform.addEventListener("change", () => {
+      updateMainControls();
+      document.querySelectorAll("[data-wave-demo]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.waveDemo === state.waveform);
+      });
+    });
+
+    els.playTone.addEventListener("click", () => playTone());
+    els.playPulse.addEventListener("click", async () => {
+      const ready = await ensureAudio();
+      if (!ready) return;
+      for (let i = 0; i < 4; i += 1) {
+        scheduleTone({
+          frequency: state.frequency,
+          duration: 0.12,
+          volume: state.volume,
+          waveform: state.waveform,
+          delay: i * 0.22
+        });
+      }
+    });
+
+    els.playMelody.addEventListener("click", async () => {
+      playSequence(melodies.joy);
+    });
+
+    els.stopSound.addEventListener("click", stopAllSounds);
+
+    els.miniPitch.addEventListener("input", updateMiniControls);
+    els.miniDuration.addEventListener("input", updateMiniControls);
+    els.miniVolume.addEventListener("input", updateMiniControls);
+
+    document.querySelectorAll("[data-play-mini]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const demo = button.dataset.playMini;
+        if (demo === "pitch") {
+          playTone({ frequency: state.miniPitch, duration: 0.55, volume: 30, waveform: "sine" });
+        }
+        if (demo === "duration") {
+          playTone({ frequency: 440, duration: state.miniDuration / 1000, volume: 30, waveform: "triangle" });
+        }
+        if (demo === "volume") {
+          playTone({ frequency: 440, duration: 0.65, volume: state.miniVolume, waveform: "sine" });
+        }
+      });
+    });
+
+    document.querySelectorAll("[data-wave-demo]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.waveform = button.dataset.waveDemo;
+        els.waveform.value = state.waveform;
+        updateMainControls();
+        document.querySelectorAll("[data-wave-demo]").forEach((chip) => {
+          chip.classList.toggle("active", chip === button);
+        });
+        playTone({ frequency: 440, duration: 0.7, volume: 28, waveform: state.waveform });
+      });
+    });
+
+    els.hzSlider.addEventListener("input", updateFrequencyControls);
+    els.playHz.addEventListener("click", () => {
+      playTone({ frequency: state.hz, duration: 0.8, volume: 28, waveform: "sine" });
+    });
+
+    document.querySelectorAll("[data-hz]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.hz = Number(button.dataset.hz);
+        els.hzSlider.value = state.hz;
+        updateFrequencyControls();
+        playTone({ frequency: state.hz, duration: 0.65, volume: 28, waveform: "sine" });
+      });
+    });
+
+    els.mathSemitone.addEventListener("input", updateMathControls);
+
+    els.playMathNote.addEventListener("click", () => {
+      const ratio = Math.pow(2, state.mathSemitone / 12);
+      playTone({ frequency: 440 * ratio, duration: 0.75, volume: 28, waveform: "sine" });
+    });
+
+    els.playMathOctave.addEventListener("click", async () => {
+      const ready = await ensureAudio();
+      if (!ready) return;
+      scheduleTone({ frequency: 440, duration: 0.55, volume: 25, waveform: "sine" });
+      scheduleTone({ frequency: 880, duration: 0.55, volume: 25, waveform: "sine", delay: 0.65 });
+      scheduleTone({ frequency: 440, duration: 1.0, volume: 18, waveform: "sine", delay: 1.35 });
+      scheduleTone({ frequency: 880, duration: 1.0, volume: 18, waveform: "triangle", delay: 1.35 });
+    });
+
+    els.baseFrequency.addEventListener("input", updateIntervalControls);
+
+    document.querySelectorAll("[data-interval]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.interval = button.dataset.interval;
+        document.querySelectorAll("[data-interval]").forEach((item) => {
+          item.classList.toggle("active", item === button);
+        });
+        updateIntervalControls();
+      });
+    });
+
+    els.playIntervalTogether.addEventListener("click", async () => {
+      const ready = await ensureAudio();
+      if (!ready) return;
+      const interval = intervals[state.interval];
+      scheduleTone({
+        frequency: state.baseFrequency,
+        duration: 1.15,
+        volume: 22,
+        waveform: "sine"
+      });
+      scheduleTone({
+        frequency: state.baseFrequency * interval.ratio,
+        duration: 1.15,
+        volume: 22,
+        waveform: "triangle"
+      });
+    });
+
+    els.playIntervalApart.addEventListener("click", async () => {
+      const ready = await ensureAudio();
+      if (!ready) return;
+      const interval = intervals[state.interval];
+      scheduleTone({
+        frequency: state.baseFrequency,
+        duration: 0.55,
+        volume: 28,
+        waveform: "sine"
+      });
+      scheduleTone({
+        frequency: state.baseFrequency * interval.ratio,
+        duration: 0.55,
+        volume: 28,
+        waveform: "sine",
+        delay: 0.62
+      });
+    });
+
+    document.querySelectorAll("[data-melody]").forEach((button) => {
+      button.addEventListener("click", () => {
+        playSequence(melodies[button.dataset.melody]);
+      });
+    });
+
+    updateMainControls();
+    updateMiniControls();
+    updateFrequencyControls();
+    updateMathControls();
+    updateIntervalControls();
+    animateCanvases();
+  </script>
+</body>
+</html>
